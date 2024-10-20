@@ -1,4 +1,4 @@
-## PanGraphRNA: a bioinformatics plantform for graph pangenome-based RNA-seq data analysis
+## PanGraphRNA: an efficient and flexible bioinformatics platform for graph pangenome-based RNA-seq data analysis
 
 <a href="https://hub.docker.com/r/malab/pangraphrna" target="_blank"><img src="https://img.shields.io/badge/Docker_image-ready-red.svg" target="_blank"></a><a href="https://hub.docker.com/r/malab/pangraphrna" target="_blank"><img src="https://img.shields.io/docker/pulls/malab/pangraphrna"></a><a href="https://github.com/cma2015/PanGraphRNA" target="_blank"><img src="https://img.shields.io/badge/Source%20codes-support-blue"></a>
 
@@ -11,7 +11,7 @@
 - Test data and tutorial of PanGraphRNA are presented at https://github.com/cma2015/PanGraphRNA
 
 ## How to cite PanGraphRNA
-- 
+- Bu, Y., Qiu, Z., Sun, W., Han, Y., Liu, Y., Yang, J., Song, M., Li, Z., Zhang, Y., & Ma, C. (2024). PanGraphRNA: an efficient and flexible bioinformatics platform for graph pangenome-based RNA-seq data analysis. (Submitted)
 
 ## How to access help
 * Comments/suggestions/bugs/issues are welcome reported [here](https://github.com/cma2015/PanGraphRNA/issues) or contact: Yifan Bu b761307648@163.com, Minggui Song smg@nwafu.edu.cn or Chuang Ma chuangma2006@gmail.com
