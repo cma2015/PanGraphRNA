@@ -11,10 +11,10 @@
 - Test data and tutorial of PanGraphRNA are presented at https://github.com/cma2015/PanGraphRNA
 
 ## How to cite PanGraphRNA
-- https://github.com/cma2015/PanGraphRNA
+- 
 
 ## How to access help
-* Comments/suggestions/bugs/issues are welcome reported [here](https://github.com/cma2015/deepEA/issues) or contact: Yifan Bu b761307648@163.com, Minggui Song smg@nwafu.edu.cn or Chuang Ma chuangma2006@gmail.com
+* Comments/suggestions/bugs/issues are welcome reported [here](https://github.com/cma2015/PanGraphRNA/issues) or contact: Yifan Bu b761307648@163.com, Minggui Song smg@nwafu.edu.cn or Chuang Ma chuangma2006@gmail.com
 
 ## Change log
 - 2024.10 Release deepEA v1.0
