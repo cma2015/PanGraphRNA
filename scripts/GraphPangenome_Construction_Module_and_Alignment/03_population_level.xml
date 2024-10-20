@@ -1,0 +1,147 @@
+<tool id="Population_level" name="Population Level Graph Pangenome">
+  <description></description>
+  <command><![CDATA[
+    mkdir -p ${__tool_directory__}/$$/ ;
+
+    /home/galaxy/bcftools/bin/bcftools view --min-ac 5:nref $VCF | /home/galaxy/bcftools/bin/bcftools norm -m+ | /home/galaxy/bcftools/bin/bcftools view -Oz -o ${__tool_directory__}/$$/tmp.vcf.gz &&
+    /home/galaxy/miniconda3/envs/bio/bin/hisat2_extract_snps_haplotypes_VCF.py $Fasta ${__tool_directory__}/$$/tmp.vcf.gz ${__tool_directory__}/$$/tmp_line
+        --non-rs --inter-gap 1024 --intra-gap 150 &&
+    /home/galaxy/miniconda3/envs/bio/bin/Rscript ${__tool_directory__}/0_prep_haplotype.R tmp_line ${__tool_directory__}/$$/ var &&
+    bash ${__tool_directory__}/0_build_index.sh
+        -R $Fasta -T "population"
+        -v $VCF -t $thread -o ${__tool_directory__}/$$/ &&
+    bash ${__tool_directory__}/1_alignment.sh
+        -R $Fasta -v $VCF -t $thread -o ${__tool_directory__}/$$/
+        -i 40 -x 2000 -m 9,3 -p ${paired.is_paired} -U ${unique_map} -T "population"
+        #if $paired.is_paired == "single":
+            -u ${paired.SE_FASTQ}
+            #if $paired.strand_specific.is_strand_specific == "strand_specific":
+                -s ${paired.single.strand_specific.libType}
+            #end if
+        #else:
+            -l ${paired.PE_FASTQ_R1} -r ${paired.PE_FASTQ_R2}
+            #if $paired.strand_specific.is_strand_specific == "strand_specific":
+                -s ${paired.paired.strand_specific.libType}
+            #end if
+        #end if
+    #if $paired.is_paired == "single":
+        && mv ${__tool_directory__}/$$/summary.txt $alignmentStat
+        && mv ${__tool_directory__}/$$/alignment_output.bam $alignmentOutput
+        && /home/galaxy/miniconda3/envs/bio/bin/samtools index $alignmentOutput
+    #else:
+        && mv ${__tool_directory__}/$$/summary.txt $alignmentStat_PE
+        && mv ${__tool_directory__}/$$/alignment_output.bam $alignmentOutput_PE
+        && /home/galaxy/miniconda3/envs/bio/bin/samtools index $alignmentOutput_PE
+    #end if
+    && rm -rf ${__tool_directory__}/$$/
+  ]]></command>
+  <inputs>
+    <param name="Fasta" type="data" format="fasta,fna,fa"  multiple="false" label="Input the preliminary genome file for graph genome construction" help=""/>
+    <param name="VCF" type="data" format="vcf,vcf.gz"  multiple="false" label="Input a vcf file containing variant information to be integrated into the preliminary genome" help=""/>
+    <conditional name="paired">
+        <param name="is_paired" type="select" label="Single-end or paired-end reads?">
+            <option value="single" > single-end</option>
+            <option value="pair" selected="true">paired-end</option>
+        </param>
+        <when value="single">
+            <conditional name="strand_specific">
+                <param name="is_strand_specific" type="select" label="Strand-specific reads?">
+                    <option value="non_strand_specific" selected="true"> non-strand-specific</option>
+                    <option value="strand_specific">strand-specific</option>
+                </param>
+                <when value="strand_specific">
+                    <param name="libType" type="select" label="Strand Specific lib type">
+                        <option value="F" selected="true"> F</option>
+                        <option value="R">R</option>
+                    </param>
+                </when>
+            </conditional>
+                        
+            <param name="SE_FASTQ" type="data" format="fastqsanger,fastqsanger.gz,fastq,fq"  multiple="false" label="Input the FASTQ file" help=""/>
+        </when>
+        <when value="pair">
+            <conditional name="strand_specific">
+                <param name="is_strand_specific" type="select" label="Strand-specific reads?">
+                    <option value="non_strand_specific" selected="true"> non-strand-specific</option>
+                    <option value="strand_specific">strand-specific</option>
+                </param>
+                <when value="strand_specific">
+                    <param name="libType" type="select" label="Strand Specific lib type">
+                        <option value="FR" selected="true">FR</option>
+                        <option value="RF">RF</option>
+                    </param>
+                </when>
+            </conditional>
+            <param name="PE_FASTQ_R1" type="data" format="fastqsanger,fastqsanger.gz,fastq,fq"  multiple="false" label="Input the RNA-Seq sample FASTQ file (R1)" help=""/>
+            <param name="PE_FASTQ_R2" type="data" format="fastqsanger,fastqsanger.gz,fastq,fq"  multiple="false" label="Input the RNA-Seq sample FASTQ file (R2)" help=""/>
+        </when>
+    </conditional>
+    
+    <param name="thread" type="integer" value="10" min="1" max="20" label="Threads" help="The number of threads used for parallel computation (Default: 10)"/>
+    
+    <param name="unique_map" type="select" label="Extract uniquely mapped reads? (Necessary for Graph Pangenome Evaluation Module)" display="radio">
+        <option value="yes" selected="true">Yes</option>
+        <option value="no">No</option>
+    </param>
+  </inputs>
+  <stdio>
+        <exit_code range="1:"  level="fatal" description="Error Running combine collection to a file" />
+  </stdio>
+  <outputs> 
+        <data name="alignmentStat" format="txt" label="hisat2_alignment_population_summary.txt (on ${paired.SE_FASTQ.name})">
+		<filter>paired['is_paired'] == "single"</filter>
+        </data>
+	<data name="alignmentOutput" format="bam" label="hisat2_alignment_population.bam (on ${paired.SE_FASTQ.name})">
+		<filter>paired['is_paired'] == "single"</filter>
+	</data>
+	<data name="alignmentStat_PE" format="txt" label="hisat2_alignment_population_summary.txt (on ${paired.PE_FASTQ_R1.name} and ${paired.PE_FASTQ_R2.name})">
+                <filter>paired['is_paired'] == "pair"</filter>
+        </data>
+        <data name="alignmentOutput_PE" format="bam" label="hisat2_alignment_population.bam (on on ${paired.PE_FASTQ_R1.name} and ${paired.PE_FASTQ_R2.name})">
+                <filter>paired['is_paired'] == "pair"</filter>
+        </data>
+  </outputs>
+  <help>
+<![CDATA[
+.. class:: infomark
+
+**What it does**
+
+In this function, an ultrafast and memory-efficient tool **HISAT2** (Kim, D., *et al*., 2019) is implemented for construccting graph pangenome and aligning sequencing reads.
+
+-----
+
+.. class:: infomark
+
+**Inputs**
+
+- **Input FASTQ files:**  Input cleaned sequence reads in FASTQ format
+- **Input VCF files:**  Input the variation information in VCF format
+
+-----
+
+.. class:: infomark
+
+**Parameters**
+
+- **Threads:** The number of threads used for parallel computation (Default: 10)
+
+-----
+
+.. class:: infomark
+
+**Outputs**
+
+- **HISAT2 alignment report in TXT format**
+- **HISAT2 alignment result in BAM format**
+
+
+]]>
+
+  </help>
+   <citations>
+        <citation type="doi">10.1038/s41587-019-0201-4</citation>
+        <citation type="doi">10.1093/gigascience/giab008</citation>
+        <citation type="doi">10.1093/bioinformatics/btq033</citation>
+    </citations>
+</tool>

@@ -1,0 +1,80 @@
+<tool id="qtl_analysis" name="Quantitative Trait Locus Identification">
+  <description></description>
+  <command><![CDATA[
+    mkdir -p ${__tool_directory__}/$$/ ;
+
+    /home/galaxy/miniconda3/envs/bio/bin/Rscript ${__tool_directory__}/1_run_eqtl.R ${__tool_directory__}/$$/ $var_genotype $var_loc $var_covariates $gene_expression_matrix $gene_loc $FDR_threshold
+
+    && mv ${__tool_directory__}/$$/eqtl_res.RData ${outFile1}
+    && mv ${__tool_directory__}/$$/cis_eqtl_res_matrix.txt ${outFile1}
+    && mv ${__tool_directory__}/$$/trans_eqtl_res_matrix.txt ${outFile2}
+
+    && rm -rf ${__tool_directory__}/$$/
+    
+  ]]></command>
+
+  <inputs>
+    <param name="var_genotype" type="data" format="txt"  multiple="false" label="Input the variation genotype file (TXT file)" help=""/>
+    <param name="var_loc" type="data" format="txt"  multiple="false" label="Input the variation coordinate file (TXT file)" help=""/>
+    <param name="var_covariates" type="data" format="txt"  multiple="false" label="Input the variation covariates file (TXT file)" help=""/>
+    <param name="gene_expression_matrix"   type="data" format="txt"  multiple="false" label="Input the gene expression matrix file (TXT file)" help=""/>
+    <param name="gene_loc" type="data" format="txt"  multiple="false" label="Input the gene coordinate file (TXT file)" help=""/>
+
+    <param name="FDR_threshold" type="float" value="0.05" min="0" max="1" label="Threshold of False Discovery Rate (FDR)" help="The threshold of False Discovery Rate (Default: 0.05)"/>
+
+  </inputs>
+
+  <stdio>
+        <exit_code range="1:"  level="fatal" description="Error Running combine collection to a file" />
+  </stdio>
+  <outputs> 
+        <data name="outFile1" format="RData" label= "eqtl_res.RData">
+        </data>
+        <data name="outFile2" format="csv" label= "cis_eqtl_res_matrix.txt">
+        </data>
+        <data name="outFile3" format="csv" label= "trans_eqtl_res_matrix.txt">
+        </data>
+  </outputs>
+  <help>
+<![CDATA[
+.. class:: infomark
+
+**What it does**
+
+This function is designed to perform identification of expression quantitative trait locus.
+
+-----
+
+.. class:: infomark
+
+**Inputs**
+
+- **Input TXT files:**  Input the variation genotype file in TXT format
+- **Input TXT files:**  Input the variation coordinate file in TXT format
+- **Input TXT files:**  Input the variation covariates file in TXT format
+- **Input TXT files:**  Input the gene expression matrix file in TXT format
+- **Input TXT files:**  Input the gene coordinate file in TXT format
+
+-----
+
+.. class:: infomark
+
+**Parameters**
+
+- **Threshold of False Discovery Rate:** The threshold of False Discovery Rate (Default: 0.05)
+
+-----
+
+.. class:: infomark
+
+**Outputs**
+
+- **Identification of expression quantitative trait locus in RData and TXT format**
+
+
+]]>
+</help>
+   <citations>
+        <citation type="doi">10.1093/bioinformatics/bts163</citation>
+    </citations>
+</tool>

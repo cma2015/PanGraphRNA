@@ -1,0 +1,83 @@
+<tool id="expression_quantification" name="Expression Quantification">
+  <description></description>
+  <command><![CDATA[
+    mkdir -p ${__tool_directory__}/$$/{gene_exp,trans_exp} ;
+
+    #for $fileone in $Mapping_Files:
+        bash ${__tool_directory__}/2_quantification.sh ${__tool_directory__}/$$/ $fileone.bamfile $thread $gtffile &&
+    #end for &&
+
+
+
+
+    /home/galaxy/miniconda3/envs/bio/bin/Rscript ${__tool_directory__}/2_gene_TPM_merge.R ${__tool_directory__}/$$/ &&
+
+    ls ${__tool_directory__}/$$/trans_exp/ > ${__tool_directory__}/$$/aa  &&
+    ls ${__tool_directory__}/$$/trans_exp|sed 's/_tri.*//g'|paste - ${__tool_directory__}/$$/aa > ${__tool_directory__}/$$/prepDE_input.txt  &&
+    cd ${__tool_directory__}/$$/trans_exp  &&
+    python ${__tool_directory__}/2_prepDE.py3 -i ${__tool_directory__}/$$/prepDE_input.txt -g ${__tool_directory__}/$$/readcount_gene_stringtie.csv -t ${__tool_directory__}/$$/readcount_trans_stringtie.csv
+
+    && mv ${__tool_directory__}/$$/geneTPM_merged.txt ${outFile1}
+    && mv ${__tool_directory__}/$$/readcount_gene_stringtie.csv ${outFile2}
+    && rm -rf ${__tool_directory__}/$$/
+
+  ]]></command>
+
+  <inputs>
+    <repeat name="Mapping_Files" title="BAM (Alignment)" min="1">
+        <param name="bamfile" type="data" format="bam"  multiple="false" label="Input the RNA-Seq alignment results (BAM file)" help=""/>
+    </repeat>
+    <param name="gtffile" type="data" format="gtf"  multiple="false" label="Input the preliminary genome annotation file (GTF file)" help=""/>
+    <param name="thread" type="integer" value="10" min="1" max="20" label="Threads" help="The number of threads used for parallel computation (Default: 10)"/>
+  </inputs>
+
+  <stdio>
+        <exit_code range="1:"  level="fatal" description="Error Running combine collection to a file" />
+  </stdio>
+  <outputs> 
+        <data name="outFile1" format="txt" label= "geneTPM_merged.txt">
+        </data>
+        <data name="outFile2" format="csv" label= "readcount_gene_stringtie.csv">
+        </data>
+  </outputs>
+  <help>
+<![CDATA[
+.. class:: infomark
+
+**What it does**
+
+In this function, an expression quantification tool **Stringtie** (Pertea, M., *et al*., 2015) is implemented.
+
+-----
+
+.. class:: infomark
+
+**Inputs**
+
+- **Input BAM files:**  Input read-genome alignment results in BAM format
+- **Input GTF files:**  Input reference genome annotation file in GTF format
+
+-----
+
+.. class:: infomark
+
+**Parameters**
+
+- **Threads:** The number of threads used for parallel computation (Default: 10)
+
+-----
+
+.. class:: infomark
+
+**Outputs**
+
+- **Gene read count matrix in TXT format**
+- **Gene expression quantification matrix in TXT format**
+
+
+]]>
+</help>
+   <citations>
+        <citation type="doi">10.1038/nbt.3122</citation>
+    </citations>
+</tool>

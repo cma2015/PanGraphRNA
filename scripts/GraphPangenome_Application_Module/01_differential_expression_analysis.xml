@@ -1,0 +1,57 @@
+<tool id="differential_expression_analysis" name="Differential Expression Analysis">
+  <description></description>
+  <command><![CDATA[
+    mkdir -p ${__tool_directory__}/$$/
+    && /home/galaxy/miniconda3/envs/bio/bin/Rscript ${__tool_directory__}/2.diff_expression.R
+       $read_count $CG_num $EG_num $outFile1 $outFile2 $outFile3
+    && rm -rf ${__tool_directory__}/$$/
+
+  ]]></command>
+
+  <inputs>
+    <param name="read_count" type="data" format="csv"  multiple="false" label="Read Count Matrix" help=""/>
+    <param name="CG_num" type="integer" value="3" label="The number of CG (Control Group)"/>
+    <param name="EG_num" type="integer" value="3" label="The number of EG (Experimental Group)"/>
+  </inputs>
+
+  <stdio>
+        <exit_code range="1:"  level="fatal" description="Error Running combine collection to a file" />
+  </stdio>
+  <outputs> 
+        <data name="outFile1" format="csv" label= "DEG_total.csv">
+        </data>
+        <data name="outFile2" format="csv" label= "DEG_up.csv">
+        </data>
+        <data name="outFile3" format="csv" label= "DEG_down.csv">
+        </data>
+  </outputs>
+  <help>
+<![CDATA[
+.. class:: infomark
+
+**What it does**
+
+This function is designed to perform differential expression analysis.
+
+-----
+
+.. class:: infomark
+
+**Inputs**
+- **Input CSV files:**  Gene read count matrix in CSV format
+
+-----
+
+.. class:: infomark
+
+**Outputs**
+
+- **Information of differentially expressed genes in CSV format**
+
+
+]]>
+</help>
+   <citations>
+        <citation type="doi">10.1186/s13059-014-0550-8</citation>
+    </citations>
+</tool>
