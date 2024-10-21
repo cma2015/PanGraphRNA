@@ -17,6 +17,6 @@
 * Comments/suggestions/bugs/issues are welcome reported [here](https://github.com/cma2015/PanGraphRNA/issues) or contact: Yifan Bu b761307648@163.com, Minggui Song smg@nwafu.edu.cn or Chuang Ma chuangma2006@gmail.com
 
 ## Change log
-- 2024.10 Release deepEA v1.0
-- 2022.09 we launched deepEA project
+- 2024.10 Release PanGraphRNA v1.0
+- 2022.09 we launched PanGraphRNA project
 
