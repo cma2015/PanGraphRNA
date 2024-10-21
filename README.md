@@ -3,7 +3,7 @@
 <a href="https://hub.docker.com/r/malab/pangraphrna" target="_blank"><img src="https://img.shields.io/badge/Docker_image-ready-red.svg" target="_blank"></a><a href="https://hub.docker.com/r/malab/pangraphrna" target="_blank"><img src="https://img.shields.io/docker/pulls/malab/pangraphrna"></a><a href="https://github.com/cma2015/PanGraphRNA" target="_blank"><img src="https://img.shields.io/badge/Source%20codes-support-blue"></a>
 
 ## Introduction
-- PanGraphRNA is an efficient, flexible and web-based Galaxy platform that can be easily used to construct graph pangenomes from genetic variations at individual, subpopulation, and population levels. It can assist researchers to select appropriate graph pangenomes using various performance metrics for both real and simulation experiments. Currently, PanGraphRNA is composed of four functional modules: **Graph Pangenome Preparation Module, Construction Module, Evaluation Module, and Application Module**. 
+- PanGraphRNA is an efficient, flexible and web-based Galaxy platform that can be easily used to construct graph pangenomes from genetic variations at individual, subpopulation, and population levels. It can assist researchers to select appropriate graph pangenomes using various performance metrics for both real and simulation experiments. Currently, PanGraphRNA is composed of four graph pangenome-related functional modules: **Preparation Module, Construction Module, Evaluation Module, and Application Module**. 
 - The PanGraphRNA project is hosted on https://github.com/cma2015/PanGraphRNA.
 - The PanGraphRNA Docker image can be obtained from https://hub.docker.com/r/malab/pangraphrna.
 
