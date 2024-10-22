@@ -24,7 +24,7 @@ This function is designed to perform differential expression analysis.
 
 #### Input
 
-- **Input CSV files:** Gene read count matrix in CSV format
+-  **Input CSV files:** Gene read count matrix in CSV format
   
 #### Output
 
