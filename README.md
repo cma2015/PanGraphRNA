@@ -9,7 +9,7 @@
 ![PanGraphRNA](https://github.com/cma2015/PanGraphRNA/blob/main/Tutorials/PanGraphRNA_framework.png)
 ## How to use PanGraphRNA
 - Test data and tutorial of PanGraphRNA are presented at https://github.com/cma2015/PanGraphRNA/tree/main/Tutorials
-- The installation of PanGraphRNA: https://github.com/cma2015/PanGraphRNA/blob/main/Tutorials/00_Installation.md
+- [The installation of PanGraphRNA](https://github.com/cma2015/PanGraphRNA/blob/main/Tutorials/00_Installation.md)
 - The Graph Pangenome Preparation Module: https://github.com/cma2015/PanGraphRNA/blob/main/Tutorials/01_Graph_Pangenome_Preparation_Module.md
 - The Graph Pangenome Construction Module: https://github.com/cma2015/PanGraphRNA/blob/main/Tutorials/02_Graph_Pangenome_Construction_Module_and_Alignment.md
 - The Graph Pangenome Evaluation Module: https://github.com/cma2015/PanGraphRNA/blob/main/Tutorials/03_Graph_Pangenome_Evaluation_Module.md
