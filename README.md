@@ -25,3 +25,28 @@
 - 2024.10 Release PanGraphRNA v1.0
 - 2022.09 we launched PanGraphRNA project
 
+## Quick start
+
+- **Step 1**: PanGraphRNA installation from Docker Hub
+
+```
+# pull latest PanGraphRNA Docker image from docker hub
+$ docker pull malab/pangraphrna
+```
+
+- **Step 2**: Launch PanGraphRNA local server
+
+```
+$ docker run -it -p 880:8080 malab/pangraphrna bash
+$ bash /home/galaxy/run.sh
+```
+
+Then, PanGraphRNA local server can be accessed via [http://localhost:8080](http://localhost:8080/)
+![[Tutorials/Figure/Figure0.jpg]]
+
+- **Step 3**: Upload RNA-seq, reference genome and variation data
+
+
+- **Step 4**: Construct graph pangenome (e.g. individual level graph pangenome) and perform read-genome alignment
+
+![[Tutorials/Figure/Figure0_1.jpg]]
