@@ -48,4 +48,4 @@ Then, PanGraphRNA local server can be accessed via [http://localhost:8080](http:
 
 
 - **Step 4**: Construct graph pangenome (e.g. individual level graph pangenome) and perform read-genome alignment
-![quick_start](https://github.com/cma2015/PanGraphRNA/blob/main/Tutorials/Figure/Figure0_1.jpg)
+![quick_start2](https://github.com/cma2015/PanGraphRNA/blob/main/Tutorials/Figure/Figure0_1.jpg)
