@@ -1,0 +1,156 @@
+<tool id="error_mapping_rate" name="Mapping Error Measurement">
+  <description></description>
+  <command><![CDATA[
+    mkdir -p ${__tool_directory__}/$$/ ;
+
+
+    /home/galaxy/miniconda3/envs/bio/bin/hisat2-build -p $thread $groundTruthSetting.GroundTruthFasta ${__tool_directory__}/$$/groundtruth_tmp_${rnaseqsimulation.accession_test} &&
+
+
+    /home/galaxy/bcftools/bin/bcftools view --min-ac 1:nref --force-samples -s $rnaseqsimulation.accession_test $rnaseqsimulation.VCF | /home/galaxy/bcftools/bin/bcftools view -i 'GT!~"\." & GT!~"\0"' -o ${__tool_directory__}/$$/tmp.vcf &&
+    /home/galaxy/miniconda3/envs/bio/bin/bgzip -i ${__tool_directory__}/$$/tmp.vcf &&
+    /home/galaxy/bcftools/bin/bcftools index ${__tool_directory__}/$$/tmp.vcf.gz &&
+    /home/galaxy/bcftools/bin/bcftools consensus -c ${__tool_directory__}/$$/pseudo_${rnaseqsimulation.accession_test}toref.chain -f $graphpangenome.Fasta -o ${__tool_directory__}/$$/${rnaseqsimulation.accession_test}.fa ${__tool_directory__}/$$/tmp.vcf.gz &&
+    bash ${__tool_directory__}/0_flux_args.sh $rnaseqsimulation.number ${__tool_directory__}/$$ $graphpangenome.exon_gtf $rnaseqsimulation.accession_test $rnaseqsimulation.reads_number &&
+    /home/galaxy/miniconda3/envs/bio/bin/Rscript ${__tool_directory__}/1_prep_simread_anno.R ${__tool_directory__}/$$ $graphpangenome.exon_gtf $rnaseqsimulation.accession_test ${__tool_directory__}/$$/tmp.vcf.gz &&
+    bash ${__tool_directory__}/0_flux_simulation.sh ${__tool_directory__}/$$ $rnaseqsimulation.reads_number $graphpangenome.exon_gtf $rnaseqsimulation.accession_test &&
+
+    bash ${__tool_directory__}/0_simreads_alignment.sh 
+          -R ${__tool_directory__}/$$/groundtruth -v "tmp" -t $thread -o ${__tool_directory__}/$$/ 
+          -i 40 -x 2000 -m 9,3 -T "individual" -a ${rnaseqsimulation.accession_test} &&
+
+    bash ${__tool_directory__}/0_simreads_alignment.sh 
+          -R $graphpangenome.Fasta -v $graphpangenome.build_VCF -t $thread -o ${__tool_directory__}/$$/ 
+          -i 40 -x 2000 -m 9,3 -T $graphpangenome.index.graph 
+          #if $graphpangenome.index.graph == "subpopulation"
+              -a ${graphpangenome.index.accession_list}
+          #elif $graphpangenome.index.graph == "individual"
+              -a ${graphpangenome.index.accession_number}
+          #end if  
+
+    && bash ${__tool_directory__}/1_liftover_groundtruth_bedfile.sh
+    -R ${__tool_directory__}/$$/groundtruth -t $thread -o ${__tool_directory__}/$$/ -a $rnaseqsimulation.accession_test -c $groundTruthSetting.GrounTruthChain &&
+
+    /home/galaxy/miniconda3/envs/bio/bin/Rscript ${__tool_directory__}/2_error_cal.R ${__tool_directory__}/$$/ ${__tool_directory__}/$$/sample_info ${graphpangenome.Fasta}
+
+    && mv ${__tool_directory__}/$$/compare_readtype_amongGenomes.csv ${outFile}
+    && rm -rf ${__tool_directory__}/$$/
+  ]]></command>
+
+  <inputs>
+    <section name="groundTruthSetting" title="Ground Truth Setting" expand="true">
+      <param name="GroundTruthFasta" type="data" format="fasta,fna,fa"  multiple="false" label="Input ground truth genome file" help=""/>
+      <param name="GrounTruthChain" type="data" format="axt"  multiple="false" label="Input chain file (GroundTruth to ReferenceGenome)" help=""/>
+    </section>
+    
+    
+    <section name="graphpangenome" title="Graph Pangenome Information" expand="true">
+    <param name="Fasta" type="data" format="fasta,fna,fa"  multiple="false" label="Input reference genome file that has been used for graph pangenome construction" help=""/>   
+    <param name="build_VCF" type="data" format="vcf,vcf.gz"  multiple="false" label="Input VCF file that has been used for graph pangenome construction" help=""/>
+    <conditional name="index">
+        <param name="graph" type="select" label="Which type of graph pangenome did you construct?">
+            <option value="individual" selected="true">Individual Level</option>
+            <option value="subpopulation">Subpopulation Level</option>
+            <option value="population">Population Level</option>
+        </param>
+        <when value="subpopulation">  
+            <param name="accession_list"   type="data" format="txt"  multiple="false" label="Input accession name" help=""/>
+        </when>
+        <when value="individual">  
+            <param name="accession_number"   type="integer"  value="628" format="txt"  multiple="false" label="Input accession name of variation information that has been used for graph pangenome construction" help=""/>
+        </when>
+    </conditional>
+    <param name="exon_gtf" type="data" format="gtf"  multiple="false" label="Input exon annotation file (GTF file) of reference genome file used for constructing the primary path of graph pangenome" help=""/>
+    </section>
+    <section name="rnaseqsimulation" title="RNA-Seq Reads Simulation" expand="true">
+    <param name="accession_test" type="integer" value="628" label="Input accession name for pseudo genome construction" help="The accession name (default: 628)."/>
+    <param name="VCF" type="data" format="vcf,vcf.gz"  multiple="false" label="Input VCF file containing variation information for pseudo genome construction" help=""/>
+    <param name="number"   type="integer" value="15" label="Generation of simulated RNA-seq datasets" help="Input number of how many sets of simulated reads you need to generate (Default: 15)"/>
+    <param name="reads_number" type="integer" value="1000000" label="Simulated RNA-seq read number" help="Input simreads number to generate for each dataset (Default: 1000000)"/>
+    </section>
+    <param name="thread" type="integer" value="10" min="1" max="20" label="Threads" help="The number of threads used for parallel computation (Default: 10)"/>
+  </inputs>
+
+  <stdio>
+        <exit_code range="1:"  level="fatal" description="Error Running combine collection to a file" />
+  </stdio>
+  <outputs> 
+        <data name="outFile" format="csv" label= "compare_readtype_amongGenomes.csv">
+        </data>
+  </outputs>
+  <help><![CDATA[
+
+.. class:: infomark
+
+**What it does**
+
+**Mapping error measurement** is designed to identify incorrectly mapped reads and record their error types in RNA-seq read-genome alignments. This function also enables **Flux** features (Griebel, T., *et al*., 2012) for generating simulated reads and performs read-genome alignment using **HISAT2** (Kim, D., *et al*., 2019). For more details, see https://bio.tools/the_flux_simulator and https://daehwankimlab.github.io/hisat2/manual for details.
+
+.. class:: infomark
+
+**Measuring mapping errors**
+  The alignment results for different reference genomes were compared with the ground truth, and the five error types were defined according to the read alignment type and position.
+
+	- Five **mapping error** types:
+    +----------------------------+------------------------------------------+------------------------------+
+    | Mapping error type         | Groundtruth alignment result (read type) | Alignment result (read type) |
+    +----------------------------+------------------------------------------+------------------------------+
+    | Mapped to UnMapped         |Mapped read                               | Unmapped read                |
+    +----------------------------+------------------------------------------+------------------------------+
+    | UnMapped to Mapped         |Unmapped read                             | Mapped read                  |
+    +----------------------------+------------------------------------------+------------------------------+
+    | Unique to MultiMapper      |Uniquely mapped read                      |Multiply mapped read          |
+    +----------------------------+------------------------------------------+------------------------------+
+    | MultiMapper to Unique      |Multiply mapped read                      |Uniquely mapped read          |
+    +----------------------------+------------------------------------------+------------------------------+
+    | Different Mapping Loci     |Mapped to A region                        |Mapped to B region            |
+    +----------------------------+------------------------------------------+------------------------------+
+
+-----
+
+.. class:: infomark
+
+**Inputs**
+
+- **Ground Truth Setting**
+- **Input ground truth genome file:**  Input ground truth reference genome in FASTA format
+- **Input chain file:**  Input chain file of ground truth genome (GroundTruth to ReferenceGenome) in CHAIN format
+-
+- **Graph Pangenome Information**
+- **Input reference genome file:**  Input reference genome file that has been used for graph pangenome construction in FASTA format
+- **Input VCF file:**  Input vcf file that has been used for graph pangenome construction in VCF format
+- **Input exon annotation file:**  Input exon annotation file (GTF file) of reference genome file used for constructing the primary path of graph pangenome in GTF format
+-
+- **RNA-Seq Reads Simulation**
+- **Input VCF file:**  Input VCF file containing variation information for pseudo genome construction in VCF format
+
+-----
+
+.. class:: infomark
+
+**Parameters**
+
+- **Generation of simulated RNA-seq datasets:** Input number of how many sets of simulated reads you need to generate (Default: 15)
+- **Simulated RNA-seq read number:** Input simreads number to generate for each dataset (Default: 1000000)
+- **Threads:** The number of threads used for parallel computation (Default: 10)
+
+-----
+
+.. class:: infomark
+
+**Outputs**
+
+- **Measurement of mapping errors in CSV format**
+
+
+
+]]></help>
+   <citations>
+        <citation type="doi">10.1038/s41587-019-0201-4</citation>
+        <citation type="doi">10.1093/gigascience/giab008</citation>
+        <citation type="doi">10.1093/bioinformatics/btq033</citation>
+        <citation type="doi">10.1093/nar/gks666</citation>
+        <citation type="doi">10.1093/nar/gkac1072</citation>
+        <citation type="doi">10.1101/gr.275613.121</citation>
+    </citations>
+</tool>

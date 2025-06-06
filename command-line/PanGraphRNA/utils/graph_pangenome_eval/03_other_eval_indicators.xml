@@ -1,0 +1,124 @@
+<tool id="other_eval_metrics" name="F1 Score Calculation">
+  <description></description>
+  <command><![CDATA[
+    mkdir -p ${__tool_directory__}/$$/ ;
+    source /home/galaxy/miniconda3/bin/activate /home/galaxy/miniconda3/envs/bio ;
+    /home/galaxy/bcftools/bin/bcftools view --min-ac 1:nref --force-samples -s $rnaseqsimulation.accession_test $rnaseqsimulation.VCF | /home/galaxy/bcftools/bin/bcftools view -i 'GT!~"\." & GT!~"\0"' -o ${__tool_directory__}/$$/tmp.vcf &&
+    /home/galaxy/miniconda3/envs/bio/bin/bgzip -i ${__tool_directory__}/$$/tmp.vcf &&
+    /home/galaxy/bcftools/bin/bcftools index ${__tool_directory__}/$$/tmp.vcf.gz &&
+    /home/galaxy/bcftools/bin/bcftools consensus -c ${__tool_directory__}/$$/pseudo_${rnaseqsimulation.accession_test}toref.chain -f $graphpangenome.Fasta -o ${__tool_directory__}/$$/${rnaseqsimulation.accession_test}.fa ${__tool_directory__}/$$/tmp.vcf.gz &&
+    bash ${__tool_directory__}/0_flux_args.sh $rnaseqsimulation.number ${__tool_directory__}/$$ $graphpangenome.exon_gtf $rnaseqsimulation.accession_test $rnaseqsimulation.reads_number &&
+    /home/galaxy/miniconda3/envs/bio/bin/Rscript ${__tool_directory__}/1_prep_simread_anno.R ${__tool_directory__}/$$ $graphpangenome.exon_gtf $rnaseqsimulation.accession_test ${__tool_directory__}/$$/tmp.vcf.gz &&
+    bash ${__tool_directory__}/0_flux_simulation.sh ${__tool_directory__}/$$ $rnaseqsimulation.reads_number $graphpangenome.exon_gtf $rnaseqsimulation.accession_test &&
+
+    bash ${__tool_directory__}/0_simreads_alignment.sh 
+          -R $graphpangenome.Fasta -v $graphpangenome.build_VCF -t $thread -o ${__tool_directory__}/$$/ 
+          -i 40 -x 2000 -m 9,3 -T $graphpangenome.index.graph 
+          #if $graphpangenome.index.graph == "subpopulation"
+              -a ${graphpangenome.index.accession_list}
+          #elif $graphpangenome.index.graph == "individual"
+              -a ${graphpangenome.index.accession_number}
+          #end if
+
+
+    && /home/galaxy/miniconda3/envs/bio/bin/Rscript ${__tool_directory__}/3_evalue_uniquemap_simfinal.R ${__tool_directory__}/$$/ ${graphpangenome.Fasta} $rnaseqsimulation.reads_number
+
+    && mv ${__tool_directory__}/$$/evalue_graphgenome_F1score.csv ${outFile}
+    && rm -rf ${__tool_directory__}/$$/
+
+  ]]></command>
+
+  <inputs>
+    <section name="graphpangenome" title="Graph Pangenome Information" expand="true">
+    <param name="Fasta" type="data" format="fasta,fna,fa"  multiple="false" label="Input reference genome file that has been used for graph pangenome construction" help=""/>   
+    <param name="build_VCF" type="data" format="vcf,vcf.gz"  multiple="false" label="Input VCF file that has been used for graph pangenome construction" help=""/>
+    <conditional name="index">
+        <param name="graph" type="select" label="Which type of graph pangenome did you construct?">
+            <option value="individual" selected="true">Individual Level</option>
+            <option value="subpopulation">Subpopulation Level</option>
+            <option value="population">Population Level</option>
+        </param>
+        <when value="subpopulation">  
+            <param name="accession_list"   type="data" format="txt"  multiple="false" label="Input accession name" help=""/>
+        </when>
+        <when value="individual">  
+            <param name="accession_number"   type="integer"  value="628" format="txt"  multiple="false" label="Input accession name of variation information that has been used for graph pangenome construction" help=""/>
+        </when>
+    </conditional>
+    <param name="exon_gtf" type="data" format="gtf"  multiple="false" label="Input exon annotation file (GTF file) of reference genome file used for constructing the primary path of graph pangenome" help=""/>
+    </section>
+    <section name="rnaseqsimulation" title="RNA-Seq Reads Simulation" expand="true">
+    <param name="accession_test" type="integer" value="628" label="Input accession name for pseudo genome construction" help="The accession name (default: 628)."/>
+    <param name="VCF" type="data" format="vcf,vcf.gz"  multiple="false" label="Input VCF file containing variation information for pseudo genome construction" help=""/>
+    <param name="number"   type="integer" value="15" label="Generation of simulated RNA-seq datasets" help="Input number of how many sets of simulated reads you need to generate (Default: 15)"/>
+    <param name="reads_number" type="integer" value="1000000" label="Simulated RNA-seq read number" help="Input simreads number to generate for each dataset (Default: 1000000)"/>
+    </section>
+    <param name="thread" type="integer" value="10" min="1" max="20" label="Threads" help="The number of threads used for parallel computation (Default: 10)"/>
+  </inputs>
+
+  <stdio>
+        <exit_code range="1:"  level="fatal" description="Error Running combine collection to a file" />
+  </stdio>
+  <outputs> 
+        <data name="outFile" format="csv" label= "evalue_graphgenome_F1score.csv">
+        </data>
+  </outputs>
+  <help><![CDATA[
+
+.. class:: infomark
+
+**What it does**
+
+**Mapping error measurement** is designed to calculate **Recall**, **Precision** and **F1 score** based on RNA-seq read-genome alignments. This function also enables **Flux** features (Griebel, T., *et al*., 2012) for generating simulated reads and performs read-genome alignment using **HISAT2** (Kim, D., *et al*., 2019). For more details, see https://bio.tools/the_flux_simulator and https://daehwankimlab.github.io/hisat2/manual for details.
+
+.. class:: infomark
+
+**Measuring F1score**
+  - **Recall** = 100 X *Num.correct* / *Num.reads*
+  - **Precision** = 100 X *Num.correct* / *Num.unique*
+  - **F1 score** = ( 2 X *Recall* X *Precision* ) / ( *Recall* + *Precision* )
+  - *Num.reads* represent the total number of reads in the simulated RNA-seq data; *Num.correct* represent the number of correctly aligned reads, matching the coordinates of the simulated read generation position; and *Num.unique* represent the number of uniquely mapped reads, with the uniquely mapped tag in the HISAT2 alignment result being "NH:i:1".
+
+-----
+
+.. class:: infomark
+
+**Inputs**
+
+- **Graph Pangenome Information**
+- **Input reference genome file:**  Input reference genome file that has been used for graph pangenome construction in FASTA format
+- **Input VCF file:**  Input vcf file that has been used for graph pangenome construction in VCF format
+- **Input exon annotation file:**  Input exon annotation file (GTF file) of reference genome file used for constructing the primary path of graph pangenome in GTF format
+-
+- **RNA-Seq Reads Simulation**
+- **Input VCF file:**  Input VCF file containing variation information for pseudo genome construction in VCF format
+
+-----
+
+.. class:: infomark
+
+**Parameters**
+
+- **Generation of simulated RNA-seq datasets:** Input number of how many sets of simulated reads you need to generate (Default: 15)
+- **Simulated RNA-seq read number:** Input simreads number to generate for each dataset (Default: 1000000)
+- **Threads:** The number of threads used for parallel computation (Default: 10)
+
+-----
+
+.. class:: infomark
+
+**Outputs**
+
+- **Calculation of F1 score in CSV format**
+
+]]>
+
+</help>
+   <citations>
+        <citation type="doi">10.1038/s41587-019-0201-4</citation>
+        <citation type="doi">10.1093/gigascience/giab008</citation>
+        <citation type="doi">10.1093/bioinformatics/btq033</citation>
+        <citation type="doi">10.1093/nar/gks666</citation>
+        <citation type="doi">10.1093/nar/gkac1072</citation>
+    </citations>
+</tool>
