@@ -11,7 +11,7 @@
 
 ## Graph Pangenome Construction Module and Alignment
 
-This module implements a fast, memory-efficient toolkit HISAT2 to construct graph pangenomes at the individual, subpopulation, or population level. Subsequently, it performs read-genome alignment and gene expression quantification.
+This module implements a fast, memory-efficient toolkit HISAT2 to construct graph pangenomes at the individual, subpopulation, or population level. Subsequently, it performs read-genome alignment.
 
 | **Tools**                       | **Description**                                              | **Input**                                       | **Output**                                        | **Time (test data)**         | **Reference**                                                |
 | ------------------------------- | ------------------------------------------------------------ | ----------------------------------------------- | ------------------------------------------------- | ---------------------------- | ------------------------------------------------------------ |
@@ -19,7 +19,7 @@ This module implements a fast, memory-efficient toolkit HISAT2 to construct grap
 | **Subpopulation Level Graph Pangenome**               | Construct subpopulation level graph pangenome and perform read-genome alignment | Reference genome in FASTQ format and variation information in VCF format                  | HISAT2 alignment report in TXT format and alignment result in BAM format                    | ~10 mins | <a href="https://github.com/DaehwanKimLab/hisat2" target="_blank">HISAT2</a> |
 | **Population Level Graph Pangenome** | Construct population level graph pangenome and perform read-genome alignment | Reference genome in FASTQ format and variation information in VCF format | HISAT2 alignment report in TXT format and alignment result in BAM format | ~10 mins                      | <a href="https://github.com/DaehwanKimLab/hisat2" target="_blank">HISAT2</a> |
 
-
+For large genomes like maize, graph construction and indexing require memory proportional to genome size and variant density. Incorporating known splicing sites during indexing constrains read boundaries is a strategy of reducing spurious alignments from genome complexity and improving mapping efficiency. In polyploid genomes, reporting additional multimapping loci may help evaluate alignment ambiguity caused by high subgenomic sequence similarity and its impact on downstream analyses. For highly heterozygous genomes, careful variant organization is critical: anchoring the graph on the most representative haplotype as the primary backbone and progressively integrating other variants enhances allelic diversity representation. 
 
 ## Individual Level Graph Pangenome
 
@@ -35,6 +35,7 @@ In this function, an ultrafast and memory-efficient tool **HISAT2** (Kim, D.,�
 
 -   **Accession name:** Input accession name available in the VCF to specify the variant data (Default: 628)
 -   **Threads:** The number of threads used for parallel computation (Default: 10)
+-   **VCF prefix:** The prefix of variant records (e.g., var_1125, "var" is the vcf prefix) (Default: var)
 
 #### Output
 
@@ -57,6 +58,7 @@ In this function, an ultrafast and memory-efficient tool **HISAT2** (Kim, D.,�
 #### Parameters
 
 -   **Threads:** The number of threads used for parallel computation (Default: 10)
+-   **VCF prefix:** The prefix of variant records (e.g., var_1125, "var" is the vcf prefix) (Default: var)
 
 #### Output
 
@@ -78,6 +80,7 @@ In this function, an ultrafast and memory-efficient tool **HISAT2** (Kim, D.,�
 #### Parameters
 
 -   **Threads:** The number of threads used for parallel computation (Default: 10)
+-   **VCF prefix:** The prefix of variant records (e.g., var_1125, "var" is the vcf prefix) (Default: var)
 
 #### Output
 
