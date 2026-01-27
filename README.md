@@ -117,4 +117,4 @@ Perform RNA-seq reads simulation and measure mapping errors (Measurement of mapp
 ![quick_star6](Tutorials/Figure/Figure3_2.jpg)
 
 Perform RNA-seq reads simulation and calculate F1 score (Calculation of F1 score in CSV format).
-![quick_star7](Figure/Figure3_3.jpg)
+![quick_star7](Tutorials/Figure3_3.jpg)
