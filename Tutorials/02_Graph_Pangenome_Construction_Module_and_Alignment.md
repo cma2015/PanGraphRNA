@@ -28,14 +28,13 @@ In this function, an ultrafast and memory-efficient tool **HISAT2** (Kim, D.,�
 #### Input
 
 -   **Input reference genome file:** Input reference genome file for primary path of graph pangenome in FASTA format
--   **Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format
+-   **Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format (Please set the ID in the third column of the VCF file to the format var*, for example, var100, var1_100 or var_chr01_100_A_T)
 -   **Input FASTQ file:** Cleaned single-end or paired-end RNA-seq reads in FASTQ format
 
 #### Parameters
 
 -   **Accession name:** Input accession name available in the VCF to specify the variant data (Default: 628)
 -   **Threads:** The number of threads used for parallel computation (Default: 10)
--   **VCF prefix:** The prefix of variant records (e.g., var_1125, "var" is the vcf prefix) (Default: var)
 
 #### Output
 
@@ -51,14 +50,13 @@ In this function, an ultrafast and memory-efficient tool **HISAT2** (Kim, D.,�
 #### Input
 
 -   **Input reference genome file:** Input reference genome file for primary path of graph pangenome in FASTA format
--   **Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format
+-   **Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format (Please set the ID in the third column of the VCF file to the format var*, for example, var100, var1_100 or var_chr01_100_A_T)
 -   **Input accession name list:** Input accession name list (TXT file) available in the VCF file to specify the variant data
 -   **Input FASTQ file:** Cleaned single-end or paired-end RNA-seq reads in FASTQ format
 
 #### Parameters
 
 -   **Threads:** The number of threads used for parallel computation (Default: 10)
--   **VCF prefix:** The prefix of variant records (e.g., var_1125, "var" is the vcf prefix) (Default: var)
 
 #### Output
 
@@ -74,13 +72,12 @@ In this function, an ultrafast and memory-efficient tool **HISAT2** (Kim, D.,�
 #### Input
 
 -   **Input reference genome file:** Input reference genome file for primary path of graph pangenome in FASTA format
--   **Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format
+-   **Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format (Please set the ID in the third column of the VCF file to the format var*, for example, var100, var1_100 or var_chr01_100_A_T)
 -   **Input FASTQ file:** Cleaned single-end or paired-end RNA-seq reads in FASTQ format
   
 #### Parameters
 
 -   **Threads:** The number of threads used for parallel computation (Default: 10)
--   **VCF prefix:** The prefix of variant records (e.g., var_1125, "var" is the vcf prefix) (Default: var)
 
 #### Output
 

@@ -77,8 +77,8 @@ $ docker pull malab/pangraphrna
 - **Step 3**: Launch PanGraphRNA local server
 
 ```
-$ docker run -it -p 880:8080 malab/pangraphrna bash
-$ bash /home/galaxy/run.sh
+$ docker run -it -p 8080:8080 malab/pangraphrna bash
+$ bash ./run.sh
 ```
 
 Then, PanGraphRNA local server can be accessed via [http://localhost:8080](http://localhost:8080/)
@@ -92,20 +92,20 @@ Here, we have provided small test files in the `testdata.tar.gz` to help users q
 Then we can construct graph pangenomes at the individual, subpopulation, or population level. Subsequently, this module performs read-genome alignment.
 - Individual Level Graph Pangenome
 **Input reference genome file:** Input reference genome file for primary path of graph pangenome in FASTA format (e.g. `Col0_test.fasta`)
-**Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format (e.g. `10015.vcf`, accession name `10015`)
+**Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format (e.g. `10015.vcf`, accession name `10015`) (Please set the ID in the third column of the VCF file to the format var*, for example, var100, var1_100 or var_chr01_100_A_T)
 **Input FASTQ file:** Cleaned single-end or paired-end RNA-seq reads in FASTQ format (e.g. `test.fastq`)
 ![quick_start2](Tutorials/Figure/Figure0_1.jpg)
 
 - Subpopulation Level Graph Pangenome
 **Input reference genome file:** Input reference genome file for primary path of graph pangenome in FASTA format
-**Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format
+**Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format (Please set the ID in the third column of the VCF file to the format var*, for example, var100, var1_100 or var_chr01_100_A_T)
 **Input accession name list:** Input accession name list (TXT file) available in the VCF file to specify the variant data
 **Input FASTQ file:** Cleaned single-end or paired-end RNA-seq reads in FASTQ format
 ![quick_start3](Tutorials/Figure/Figure2_2.jpg)
 
 - Population Level Graph 
 **Input reference genome file:** Input reference genome file for primary path of graph pangenome in FASTA format
-**Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format
+**Input VCF file:** Input VCF file containing variant information to be integrated into the primary path of graph pangenome in VCF format (Please set the ID in the third column of the VCF file to the format var*, for example, var100, var1_100 or var_chr01_100_A_T)
 **Input FASTQ file:** Cleaned single-end or paired-end RNA-seq reads in FASTQ format
 ![quick_start4](Tutorials/Figure/Figure2_3.jpg)
 
@@ -117,4 +117,4 @@ Perform RNA-seq reads simulation and measure mapping errors (Measurement of mapp
 ![quick_star6](Tutorials/Figure/Figure3_2.jpg)
 
 Perform RNA-seq reads simulation and calculate F1 score (Calculation of F1 score in CSV format).
-![quick_star7](Tutorials/Figure/Figure3_3.jpg)
+![quick_star7](Figure/Figure3_3.jpg)

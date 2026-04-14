@@ -61,8 +61,8 @@ $ docker pull malab/pangraphrna
 - **Step 3**: Launch PanGraphRNA local server
 
 ```
-$ docker run -it -p 880:8080 malab/pangraphrna bash
-$ bash /home/galaxy/run.sh
+$ docker run -it -p 8080:8080 malab/pangraphrna bash
+$ bash ./run.sh
 ```
 
 Then, PanGraphRNA local server can be accessed via [http://localhost:8080](http://localhost:8080/)
