@@ -47,7 +47,7 @@ def main():
         See https://daehwankimlab.github.io/hisat2/manual for details.""")
     fullhelp_argumentparser.AlignmentStatisticsArgs(
         subparser,
-        'alignment_satistics',
+        'alignment_statistics',
         """In this function, PanGraphRNA can count uniquely mapped reads, multiply mapped reads and calculate alignment rates among multiple read-genome alignment results.""")
     fullhelp_argumentparser.ExpressionQuantificationArgs(
         subparser,

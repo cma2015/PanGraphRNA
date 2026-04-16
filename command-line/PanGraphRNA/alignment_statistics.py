@@ -37,8 +37,8 @@ class AlignmentStatistics(object):
             self.output_path.mkdir()
     def alignment_statistics(self):
         input_path = self.args.input_path
-        output_path = self.args.output_path
-        output_name = self.args.output_name
+        output_path = self.args.output
+        output_name = self.args.name
         args = [
             f'{script_dir}/utils/2.mapping_rate.sh',
             output_path,

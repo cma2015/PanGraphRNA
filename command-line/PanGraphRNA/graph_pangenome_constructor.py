@@ -72,7 +72,8 @@ class GraphPangenomeConstructor(object):
             '-a', accession,
             '-T', threads,
             '-o', output_path,
-            '-n', output_name
+            '-n', output_name,
+            '-W', f'{script_dir}/utils'
         ]
 
         try:

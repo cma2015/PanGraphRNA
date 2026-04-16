@@ -36,9 +36,9 @@ class DifferentialExpression(object):
             self.output.info('Creating output directory.')
             self.output_path.mkdir()
     def differential_expression(self):
-        input_path = self.args.input_path
-        output_path = self.args.output_path
-        output_name = self.args.output_name
+        input_path = self.args.input
+        output_path = self.args.output
+        output_name = self.args.name
         r_path = self.args.r_path
         cg_num = str(self.args.CG)
         eg_num = str(self.args.EG)

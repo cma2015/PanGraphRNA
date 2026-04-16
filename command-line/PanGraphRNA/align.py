@@ -9,7 +9,7 @@ script_path = os.path.join(os.getcwd(), __file__)
 script_dir = os.path.dirname(script_path)
 logger = getLogger(__name__)  # pylint: disable=invalid-name
 
-class Alignment(object):
+class Align(object):
     """The extract featres process.
 
     Attributes:
@@ -61,7 +61,7 @@ class Alignment(object):
         if not self.output_path.is_dir():
             self.output.info('Creating output directory.')
             self.output_path.mkdir()
-    def sra2fastq(self):
+    def alignment(self):
         hisat2_path = self.args.hisat2_path
         perl_path = self.args.perl_path
         index_path = self.args.index_path
@@ -96,12 +96,13 @@ class Alignment(object):
             '-U', unique,
             '-o', output_path,
             '-n', output_name,
-            '-T', samtools_path
+            '-T', samtools_path,
+            '-W',f'{script_dir}/utils'
         ]
         try:
             result = subprocess.run(
                 args,
-                capture_output=True,
+                capture_output=False,
                 text=True, 
                 check=True 
             )
@@ -113,6 +114,6 @@ class Alignment(object):
     def process(self):
         self.check_args()
         self.check_directory()
-        self.output.info('Starting sra2fastq Process.')
-        self.sra2fastq()
-        self.output.info('Completed sra2fastq Process.')
+        self.output.info('Starting Alignment Process.')
+        self.alignment()
+        self.output.info('Completed Alignment Process.')

@@ -520,7 +520,7 @@ class AlignmentArgs(PanGraphRNAArgs):
             'help': 'minimum intron length (20).'})
         argument_list.append({
             'opts': ('-M', '--max_intron_length'),
-            'dest': 'min_intron_length',
+            'dest': 'max_intron_length',
             'default': 500000,
             'type': int,
             'help': 'maximum intron length (500000).'})
@@ -593,11 +593,17 @@ class ExpressionQuantificationArgs(PanGraphRNAArgs):
     def get_argument_list():
         argument_list = []
         argument_list.append({
-            'opts': ('-input', '--input_path'),
-            'dest': 'input_path',
+            'opts': ('-input', '--input'),
+            'dest': 'input',
             'required': True,
             'type': str,
             'help': 'Input RNA-Seq alignment results (BAM file) list.'})
+        argument_list.append({
+            'opts': ('-annotation_file', '--annotation_file'),
+            'dest': 'annotation_file',
+            'required': True,
+            'type': str,
+            'help': 'Input annotation file.'})
         argument_list.append({
             'opts': ('-samtools', '--samtools_path'),
             'dest': 'samtools_path',
@@ -615,8 +621,7 @@ class ExpressionQuantificationArgs(PanGraphRNAArgs):
             'dest': 'r_path',
             'required': True,
             'type': str,
-            'help': 'R folder path.'
-        })
+            'help': 'R folder path.'})
         argument_list.append({
             'opts': ('-o', '--output'),
             'dest': 'output',
@@ -637,8 +642,8 @@ class DifferentialExpressionArgs(PanGraphRNAArgs):
     def get_argument_list():
         argument_list = []
         argument_list.append({
-            'opts': ('-input', '--input_path'),
-            'dest': 'input_path',
+            'opts': ('-input', '--input'),
+            'dest': 'input',
             'required': True,
             'type': str,
             'help': 'Input read count matrix path.'})
@@ -681,11 +686,11 @@ class QuantitativeTraitLocusArgs(PanGraphRNAArgs):
     def get_argument_list():
         argument_list = []
         argument_list.append({
-            'opts': ('-vg', '--variation_genotype'),
-            'dest': 'variation_genotype',
+            'opts': ('-vg', '--variation_name'),
+            'dest': 'variation_name',
             'required': True,
             'type': str,
-            'help': 'Input variation genotype file (TXT file).'})
+            'help': 'Input variation name file (TXT file).'})
         argument_list.append({
             'opts': ('-vcoordinate', '--variation_coordinate'),
             'dest': 'variation_coordinate',

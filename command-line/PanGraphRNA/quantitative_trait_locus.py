@@ -36,13 +36,13 @@ class QuantitativeTraitLocus(object):
             self.output.info('Creating output directory.')
             self.output_path.mkdir()
     def differential_expression(self):
-        variation_genotype = self.args.variation_genotype
+        variation_genotype = self.args.variation_name
         variation_coordinate = self.args.variation_coordinate
         varitaion_covariates  = self.args.variation_covariates
         gene_expression = self.args.gene_expression
         gene_coordinate = self.args.gene_coordinate
         fdr = str(self.args.FDR)
-        output_path = self.args.output_path
+        output_path = self.args.output
         r_path = self.args.r_path
 
         args = [

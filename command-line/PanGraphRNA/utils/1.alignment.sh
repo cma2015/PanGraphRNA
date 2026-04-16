@@ -17,7 +17,7 @@ unique="yes"
 index_path="No_input"
 output_name=""
 
-while getopts "t:o:p:s:i:x:m:l:r:u:U:n:P:H:I:T:h" arg
+while getopts "t:o:p:s:i:x:m:l:r:u:U:n:P:H:I:T:W:h" arg
 do
         case $arg in
         t)
@@ -67,6 +67,9 @@ do
                 ;;
         T)
             samtools_path=$OPTARG
+                ;;
+        W)
+            tool_path=$OPTARG
                 ;;
         h)
             echo "    "
@@ -119,22 +122,29 @@ do
 done
 
 if [ $pair == "paired" ]; then
-    phredval=$(cat $left_reads | ${perl_path}/perl ./0_fastq_phred.pl - | grep -o "Phred.." | sed "s/Phred//");
-    echo $phredval
+    phredval=$(cat $left_reads | ${perl_path}/perl ${tool_path}/0.fastq_phred.pl - | grep -o "Phred.." | sed "s/Phred//");
     
     if [ ${strand_info} != "unstranded" ]; then
         strand_info="--rna-strandness ${strand_info}"
     else
         strand_info=""
     fi
+    if [ "$phredval" != "33" ] && [ "$phredval" != "64" ]; then
+        echo "Warning: Detected Phred value '$phredval' is not 33 or 64. Using default Phred33."
+        phredval="33"
+    fi
     ${hisat2_path}/hisat2 -p $threads -x $index_path -1 $left_reads -2 $right_reads --phred$phredval --min-intronlen $min_intron_length --max-intronlen $max_intron_length --mp $mismatch  --summary-file ${output_dir}/${output_name}_summary.txt -S ${output_dir}/${output_name}_alignment.sam $strand_info
 fi
 if [ $pair == "single" ]; then
-    phredval=$(cat $single_reads | ${perl_path}/perl ./0_fastq_phred.pl - | grep -o "Phred.." | sed "s/Phred//");
+    phredval=$(cat $single_reads | ${perl_path}/perl ${tool_path}/0.fastq_phred.pl - | grep -o "Phred.." | sed "s/Phred//");
     if [ ${strand_info} != "unstranded" ]; then
         strand_info="--rna-strandness ${strand_info}"
     else
         strand_info=""
+    fi
+    if [ "$phredval" != "33" ] && [ "$phredval" != "64" ]; then
+        echo "Warning: Detected Phred value '$phredval' is not 33 or 64. Using default Phred33."
+        phredval="33"
     fi
     ${hisat2_path}/hisat2 -p $threads -x $index_path -U $single_reads --phred$phredval --min-intronlen $min_intron_length --max-intronlen $max_intron_length --mp $mismatch  --summary-file ${output_dir}/${output_name}_summary.txt -S ${output_dir}/${output_name}_alignment.sam $strand_info
 fi

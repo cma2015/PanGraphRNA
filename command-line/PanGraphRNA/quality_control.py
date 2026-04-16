@@ -83,7 +83,7 @@ class QualityControl(object):
                 try:
                     subprocess.run([script_path, '-w', threads, 
                                 '-q', q_vaul, '-l', minread, '-i', file, '-a', adapter,
-                                '-o', f'{output_path}/{name}_clean.fq.gz', '-h', f'{output_path}/{name}.html', 
+                                '-o', f'{output_path}/{name}_clean.fastq', '-h', f'{output_path}/{name}.html', 
                                 '-j', f'{output_path}/{name}.json'],
                         capture_output=True,
                         text=True, 
@@ -94,7 +94,7 @@ class QualityControl(object):
                 try:
                     subprocess.run([script_path, '-w', threads, 
                                 '-q', q_vaul, '-l', minread, '-i', file,
-                                '-o', f'{output_path}/{name}_clean.fq.gz', '-h', f'{output_path}/{name}.html', 
+                                '-o', f'{output_path}/{name}_clean.fastq', '-h', f'{output_path}/{name}.html', 
                                 '-j', f'{output_path}/{name}.json'],
                         capture_output=True,
                         text=True, 
@@ -110,8 +110,8 @@ class QualityControl(object):
                 try:
                     subprocess.run([script_path, '-w', threads, 
                                 '-q', q_vaul, '-l', minread, 
-                                '-i', file_R1, '-o', f'{output_path}/{name}_clean_R1.fq.gz',
-                                '-I', file_R2, '-O', f'{output_path}/{name}_clean_R2.fq.gz',
+                                '-i', file_R1, '-o', f'{output_path}/{name}_clean_R1.fastq',
+                                '-I', file_R2, '-O', f'{output_path}/{name}_clean_R2.fastq',
                                 '-a', adapter_R1, '-A', adapter_R2,
                                 '-h', f'{output_path}/{name}.html', 
                                 '-j', f'{output_path}/{name}.json'],
@@ -124,8 +124,8 @@ class QualityControl(object):
                 try:
                     subprocess.run([script_path, '-w', threads, 
                                 '-q', q_vaul, '-l', minread, 
-                                '-i', file_R1, '-o', f'{output_path}/{name}_clean_R1.fq.gz',
-                                '-I', file_R2, '-O', f'{output_path}/{name}_clean_R2.fq.gz',
+                                '-i', file_R1, '-o', f'{output_path}/{name}_clean_R1.fastq',
+                                '-I', file_R2, '-O', f'{output_path}/{name}_clean_R2.fastq',
                                 '--detect_adapter_for_pe',
                                 '-h', f'{output_path}/{name}.html', 
                                 '-j', f'{output_path}/{name}.json'],

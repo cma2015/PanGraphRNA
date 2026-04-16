@@ -10,11 +10,14 @@
 - PanGraphRNA docker image is available at [https://hub.docker.com/r/malab/pangraphrna](https://hub.docker.com/r/malab/pangraphrna)
 - PanGraphRNA command-line version is available at [https://github.com/cma2015/PanGraphRNA/command-line](https://github.com/cma2015/PanGraphRNA/command-line)
 
+- **Please note that the command-line version of PanGraphRNA is primarily used for data preprocessing, graph pangenome construction, graph pangenome-based alignment, and downstream applications.** 
+
 ## Getting Started
 
 Before using PanGraphRNA, ensure you have Python 3.9 or higher installed. Run commands in your terminal (Command Prompt on Windows, Terminal on Mac/Linux) using the format:
 
 ```python
+chmod +x /path/to/PanGraphRNA/utils/*
 python pangraphrna.py <command> [options]
 ```
 
@@ -101,9 +104,9 @@ python pangraphrna.py quality_control \
 
 - `--bcf_path`: Path to `bcftools` (for processing VCF files).
 - `--hisat2_path`: Path to `HISAT2` (alignment tool).
-- `--r_path`: Path to R (statistical software).
+- `--r_path`: Path to Rscript (statistical software).
 - `--fasta`: Path to the reference genome (FASTA format).
-- `--vcf`: Path to the VCF file with genetic variations.
+- `--vcf`: Path to the VCF file with genetic variations (Please set the ID in the third column of the VCF file to the format var*, for example, var100, var1_100 or var_chr01_100_A_T).
 - `--method`: Method for building the pangenome (check tool docs for options).
 - `--output`: Folder for the pangenome output.
 - `--name`: Name for your pangenome.
@@ -120,12 +123,36 @@ python pangraphrna.py quality_control \
 python pangraphrna.py graph_pangenome_constructor \
   			--bcf_path /path/to/bcftools \
   			--hisat2_path /path/to/hisat2 \
-  			--r_path /path/to/R \
+  			--r_path /path/to/Rscript \
   			--fasta /ref_genome/human.fasta \
   			--vcf /variants/all_variants.vcf \
-        --method basic \
+  			--method Individual \
+  			--accesssion accession_name \
   			--output /my_pangenome \
-  			--name human_pangenome \
+  			--name individual_pangenome \
+  			--threads 8
+
+python pangraphrna.py graph_pangenome_constructor \
+  			--bcf_path /path/to/bcftools \
+  			--hisat2_path /path/to/hisat2 \
+  			--r_path /path/to/Rscript \
+  			--fasta /ref_genome/human.fasta \
+  			--vcf /variants/all_variants.vcf \
+  			--method Subpopulation \
+  			--accesssion_list accession_list \
+  			--output /my_pangenome \
+  			--name subpopulation_pangenome \
+  			--threads 8
+
+python pangraphrna.py graph_pangenome_constructor \
+  			--bcf_path /path/to/bcftools \
+  			--hisat2_path /path/to/hisat2 \
+  			--r_path /path/to/Rscript \
+  			--fasta /ref_genome/human.fasta \
+  			--vcf /variants/all_variants.vcf \
+  			--method Population \
+  			--output /my_pangenome \
+  			--name population_pangenome \
   			--threads 8
 ```
 
@@ -141,7 +168,7 @@ python pangraphrna.py graph_pangenome_constructor \
 - `--fastq_type`: `single` or `paired` (matching your FASTQ files).
 - For single-end: `--single_file`: Path to cleaned FASTQ.
 - For paired-end: `--paired_file1` and `--paired_file2`: Paths to cleaned paired FASTQs.
-- `--strand_info`: Strand-specific info: `F`/`R` (single-end) or `FR`/`RF` (paired-end) (check your sequencing protocol).
+- `--strand_info`: Strand-specific info: `F`/`R` (single-end) or `FR`/`RF` (paired-end) or `unstranded` (check your sequencing protocol).
 - `--output`: Folder for alignment output (SAM/BAM files).
 - `--name`: Name for your alignment files.
 - `--threads`: Number of CPU cores (e.g., 4).
@@ -162,7 +189,7 @@ python pangraphrna.py align \
   			--fastq_type paired \
   			--paired_file1 /my_clean_fastq/sample1_clean_R1.fastq \
   			--paired_file2 /my_clean_fastq/sample1_clean_R2.fastq \
-  			--strand_info FR \
+  			--strand_info unstranded \
   			--output /my_alignments \
   			--name sample1_aln \
   			--threads 8 \
@@ -176,17 +203,24 @@ python pangraphrna.py align \
 
 **Required Options**:
 
-- `--input`: Folder containing alignment files (BAM/SAM).
-- `--output`: Folder for statistics output (CSV/Text files).
-- `--samtools_path`: Path to `samtools` (for processing BAM files).
+- `--input`: List of alignment summary files (Text file).
+- `--output`: Folder for statistics output (Text files).
+- `--name`: Name for your statistics file.
 
 **Example**:
 
 ```python
+alignment_summary_list:
+/path/to/alignment1_summary.txt
+/path/to/alignment2_summary.txt
+/path/to/alignment3_summary.txt
+```
+
+```python
 python pangraphrna.py alignment_statistics \
-  			--input /my_alignments \
+  			--input /alignment_summary_list \
   			--output /my_stats \
-  			--samtools_path /path/to/samtools
+  			--name alignment_statistics
 ```
 
 #### 6. `expression_quantification`
@@ -195,9 +229,10 @@ python pangraphrna.py alignment_statistics \
 
 **Required Options**:
 
-- `--input_path`: Folder with alignment files (BAM).
-- `--output_path`: Folder for expression results.
-- `--r_path`: Path to R.
+- `--input`: List of alignment files (BAM/SAM).
+- `--output`: Folder for expression results.
+- `--annotation_file`: Annotation file for reference genome(GTF).
+- `--r_path`: Path to Rscript.
 - `--samtools_path`: Path to `samtools`.
 - `--stringtie_path`: Path to `StringTie`.
 - `--threads`: Number of CPU cores.
@@ -206,9 +241,10 @@ python pangraphrna.py alignment_statistics \
 
 ```python
 python pangraphrna.py expression_quantification \
-  			--input_path /my_alignments \
-  			--output_path /my_expression \
-  			--r_path /path/to/R \
+  			--input /my_alignments_list \
+  			--output /my_expression \
+  			--annotation_file /genome_annotation \
+  			--r_path /path/to/Rscript \
   			--samtools_path /path/to/samtools \
   			--stringtie_path /path/to/stringtie \
   			--threads 4
@@ -220,10 +256,10 @@ python pangraphrna.py expression_quantification \
 
 **Required Options**:
 
-- `--input_path`: Folder with expression quantification results.
-- `--output_path`: Folder for DEG results.
-- `--output_name`: Name for your DEG files.
-- `--r_path`: Path to R.
+- `--input`: Folder with expression quantification results (read count, CSV).
+- `--output: Folder for DEG results.
+- `--name`: Name for your DEG files.
+- `--r_path`: Path to Rscript.
 - `--CG`: Number of control group samples.
 - `--EG`: Number of experimental group samples.
 
@@ -231,12 +267,12 @@ python pangraphrna.py expression_quantification \
 
 ```python
 python pangraphrna.py differential_expression \
-  			--input_path /my_expression \
-  			--output_path /my_degs \
-  			--output_name sample_degs \
-  			--r_path /path/to/R \
+  			--input /readcount_matrix \
+  			--output /my_degs \
+  			--name sample_degs \
+  			--r_path /path/to/Rscript \
   			--CG 3 \  # 3 control samples
- 	 			--EG 3   # 3 experimental samples
+ 	 		--EG 3   # 3 experimental samples
 ```
 
 #### 8. `quantitative_trait_locus`
@@ -245,24 +281,25 @@ python pangraphrna.py differential_expression \
 
 **Required Options**:
 
-- `--variation_genotype`: Path to genotype data (variations).
+- `--variation_name`: Path to genotype data (variation name).
 - `--variation_coordinate`: Path to variation coordinates (chromosome, position).
 - `--gene_expression`: Path to gene expression data.
 - `--gene_coordinate`: Path to gene coordinates (chromosome, position).
-- `--output_path`: Folder for eQTL results.
-- `--r_path`: Path to R.
+- `--output`: Folder for eQTL results.
+- `--r_path`: Path to Rscript.
 - `--FDR`: False Discovery Rate cutoff (e.g., 0.05).
 
 **Example**:
 
 ```python
 python pangraphrna.py quantitative_trait_locus \
-  			--variation_genotype /variants/genotypes.txt \
+  			--variation_name /variants/variation_name.txt \
   			--variation_coordinate /variants/variation_coords.txt \
+  			--variation_covariates /variants/varitaion_covariates.txt \
   			--gene_expression /my_expression/expression.txt \
   			--gene_coordinate /genes/gene_coords.txt \
-  			--output_path /my_eqtls \
-  			--r_path /path/to/R \
+  			--output /my_eqtls \
+  			--r_path /path/to/Rscript \
   			--FDR 0.05
 ```
 

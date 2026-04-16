@@ -78,13 +78,14 @@ class ExpressionQuantification(object):
             Path(f'{self.output_str}/gene_exp').mkdir()
             Path(f'{self.output_str}/trans_exp').mkdir()
             
-    def differential_expression(self):
-        input_path = self.args.input_path
-        output_path = self.args.output_path
+    def expression_quantification(self):
+        input_path = self.args.input
+        output_path = self.args.output
         r_path = self.args.r_path
         samtools_path = self.args.samtools_path
         stringtie_path = self.args.stringtie_path
-        threads  = self.args.threads
+        annotation_file = self.args.annotation_file
+        threads  = str(self.args.threads)
 
         args = [
             f'{script_dir}/utils/5.quantification.sh',
@@ -93,7 +94,9 @@ class ExpressionQuantification(object):
             '-S', stringtie_path,
             '-t', threads,
             '-o', output_path,
-            '-r', r_path,            
+            '-r', r_path,
+            '-G', annotation_file,
+            '-W',f'{script_dir}/utils'
         ]
         try:
             result = subprocess.run(
@@ -106,136 +109,9 @@ class ExpressionQuantification(object):
             self.output.error(e.stderr)
         except FileNotFoundError:
             self.output.error(f"Can not found file {script_dir}/utils/5.quantification.sh")
-        samples = []
-        try:
-            fin = open(f'{output_path}/prepDE_input.txt', 'r')
-            for line in fin:
-                if line[0] != '#':
-                    lineLst = tuple(line.strip().split(None,2))
-                    if (len(lineLst) != 2):
-                        print("Error: line should have a sample ID and a file path:\n%s" % (line.strip()))
-                        exit(1)
-                    if lineLst[0] in samples:
-                        print("Error: non-unique sample ID (%s)" % (lineLst[0]))
-                        exit(1)
-                    if not os.path.isfile(lineLst[1]):
-                        print("Error: GTF file not found (%s)" % (lineLst[1]))
-                        exit(1)
-                    samples.append(lineLst)
-        except IOError:
-            print("Error: List of .gtf files, %s, doesn't exist" % (output_path))
-            exit(1)
-        samples.sort()
-        read_len=75
-        t_count_matrix, g_count_matrix=[],[]
-        geneIDs={}
-        for s in samples:
-            badGenes=[] #list of bad genes (just ones that aren't MSTRG)
-            try:
-        
-                with open(s[1]) as f:
-                    split=[l.split('\t') for l in f.readlines()]
 
-        ## i = numLine; v = corresponding i-th GTF row
-                for i,v in enumerate(split):
-                    if is_transcript(v):
-                        try:
-                            t_id=RE_TRANSCRIPT_ID.search(v[8]).group(1)
-                            g_id=getGeneID(v[8], v[0], t_id)
-                        except:
-                            print("Problem parsing file %s at line:\n:%s\n" % (s[1], v))
-                            sys.exit(1)
-                        geneIDs.setdefault(t_id, g_id)
-                        if not RE_STRING.match(g_id):
-                            badGenes.append([v[0],v[6], t_id, g_id, min(int(v[3]),int(v[4])), max(int(v[3]),int(v[4]))]) #chromosome, strand, cluster/transcript id, start, end
-                            j=i+1
-                            while j<len(split) and split[j][2]=="exon":
-                                badGenes[len(badGenes)-1].append((min(int(split[j][3]), int(split[j][4])), max(int(split[j][3]), int(split[j][4]))))
-                                j+=1
-
-            except StopIteration:
-                warnings.warn("Didn't get a GTF in that directory. Looking in another...")
-
-            else: #we found the "bad" genes!
-                break
-        geneDict={} #key=gene/cluster, value=dictionary with key=sample, value=summed counts
-        t_dict={}
-        guidesFile='' # file given with -G for the 1st sample
-        for q, s in enumerate(samples):
-            lno=0
-            try:
-       
-                f = open(s[1])
-                transcript_len=0
-        
-                for l in f:
-                    lno+=1
-                    if l.startswith('#'):
-                        if lno==1:
-                            ei=l.find('-e')
-                            if ei<0:
-                                print("Error: sample file %s was not generated with -e option!" % ( s[1] ))
-                                sys.exit(1)
-                            gf=RE_GFILE.search(l)
-                            if gf:
-                                gfile=gf.group(1)
-                                if guidesFile:
-                                    if gfile != guidesFile:
-                                        print("Warning: sample file %s generated with a different -G file (%s) than the first sample (%s)" % ( s[1], gfile, guidesFile ))
-                                else:
-                                    guidesFile=gfile
-                            else:
-                                print("Error: sample %s was not processed with -G option!" % ( s[1] ))
-                                sys.exit(1)
-                        continue
-                    v=l.split('\t')
-                    if v[2]=="transcript":
-                        if transcript_len>0:
-##                        transcriptList.append((g_id, t_id, int(ceil(coverage*transcript_len/read_len))))
-                            t_dict.setdefault(t_id, {})
-                            t_dict[t_id].setdefault(s[0], int(ceil(coverage*transcript_len/read_len)))
-                        t_id=RE_TRANSCRIPT_ID.search(v[len(v)-1]).group(1)
-                        #g_id=RE_GENE_ID.search(v[len(v)-1]).group(1)
-                        g_id=getGeneID(v[8], v[0], t_id)
-                        #coverage=float(RE_COVERAGE.search(v[len(v)-1]).group(1))
-                        coverage=getCov(v[8])
-                        transcript_len=0
-                    if v[2]=="exon":
-                        transcript_len+=int(v[4])-int(v[3])+1 #because end coordinates are inclusive in GTF
-
-##                  transcriptList.append((g_id, t_id, int(ceil(coverage*transcript_len/read_len))))
-                t_dict.setdefault(t_id, {})
-                t_dict[t_id].setdefault(s[0], int(ceil(coverage*transcript_len/read_len)))
-
-            except StopIteration:
-
-                warnings.warn("No GTF file found in " + s[1])
-
-
-    
-            for i,v in t_dict.items():
-##        print i,v
-                try:
-                    geneDict.setdefault(geneIDs[i],{}) #gene_id
-                    geneDict[geneIDs[i]].setdefault(s[0],0)
-                    geneDict[geneIDs[i]][s[0]]+=v[s[0]]
-                except KeyError:
-                    print("Error: could not locate transcript %s entry for sample %s" % ( i, s[0] ))
-                raise
-        with open(f'{output_path}/readcount_trans_stringtie.csv', 'w') as csvfile:
-            my_writer = csv.DictWriter(csvfile, fieldnames = ["transcript_id"] + [x for x,y in samples])
-            my_writer.writerow(dict((fn,fn) for fn in my_writer.fieldnames))
-            for i in t_dict:
-                t_dict[i]["transcript_id"] = i
-                my_writer.writerow(t_dict[i])
-        with open(f'{output_path}/readcount_gene_stringtie.csv', 'w') as csvfile:
-            my_writer = csv.DictWriter(csvfile, fieldnames = ["gene_id"] + [x for x,y in samples])
-            my_writer.writerow(dict((fn,fn) for fn in my_writer.fieldnames))
-            for i in geneDict:
-                geneDict[i]["gene_id"] = i #add gene_id to row
-                my_writer.writerow(geneDict[i])
     def process(self):
         self.check_directory()
         self.output.info('Starting Alignment Statistics Process.')
-        self.differential_expression()
+        self.expression_quantification()
         self.output.info('Completed Alignment Statistics Process.')
